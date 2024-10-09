@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import ethers from "ethers";
+import { ethers } from "ethers";
 
 const WalletCard = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -25,17 +25,29 @@ const WalletCard = () => {
     getUserBalance(newAccount);
   };
 
-  const getUserBalance = (address) => {
-    window.ethereum
-      .request({ method: "eth_getBalance", params: [address, "latest"] })
-      .then((balance) => {
-        setUserBalance(ethers.utils.formatEther(balance));
+  const getUserBalance = async (address) => {
+    try {
+      const balance = await window.ethereum.request({
+        method: "eth_getBalance",
+        params: [address, "latest"],
       });
+      console.log("Balance in Wei:", balance); // Debugging: Log balance in Wei
+      const balanceInEther = ethers.formatEther(balance);
+      setUserBalance(balanceInEther);
+    } catch (error) {
+      console.error("Error fetching balance:", error); // Debugging: Log error
+      setErrorMessage("Failed to fetch balance");
+    }
   };
   return (
     <div>
       <h4>Connect to MetaMask</h4>
-      <button onClick={connectWalletHandler}>{connButtonText}</button>
+      <button
+        className="bg-blue-400 rounded-full "
+        onClick={connectWalletHandler}
+      >
+        {connButtonText}
+      </button>
       <div>
         <h3>Address: {defaultAccount}</h3>
       </div>
